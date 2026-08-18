@@ -18,7 +18,7 @@ def search(query: str, num: int = 5) -> str:
         url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     )
     try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
+        with urllib.request.urlopen(req, timeout=8) as resp:
             page = resp.read().decode("utf-8", errors="ignore")
     except Exception as e:
         return f"搜索失败：{e}"

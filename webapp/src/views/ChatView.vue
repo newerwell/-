@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 import { useChatStore } from "@/stores/chat";
 import { blobToWav16k } from "@/utils/audio";
 
@@ -8,6 +8,61 @@ const input = ref("");
 const recording = ref(false);
 const micTip = ref("");
 const msgListRef = ref<HTMLElement | null>(null);
+
+// ---- 音频输入设备 ----
+interface MicDevice {
+  deviceId: string;
+  label: string;
+}
+
+const micDevices = ref<MicDevice[]>([]);
+const selectedDevice = ref("");
+const devicesLoading = ref(false);
+
+async function refreshDevices() {
+  if (!navigator.mediaDevices?.enumerateDevices) return;
+  devicesLoading.value = true;
+  try {
+    // 先请求权限，否则 label 为空
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+    } catch {
+      // 权限被拒时仍尝试枚举（label 可能为空）
+    }
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const inputs = devices
+      .filter((d) => d.kind === "audioinput")
+      .map((d) => ({
+        deviceId: d.deviceId,
+        label: d.label || `麦克风 ${d.deviceId.slice(0, 8)}...`,
+      }));
+    // 去重（同一设备可能多次出现）
+    const seen = new Set<string>();
+    const unique = inputs.filter((d) => {
+      if (seen.has(d.deviceId)) return false;
+      seen.add(d.deviceId);
+      return true;
+    });
+    micDevices.value = unique;
+    // 默认选第一个（或保留当前选择）
+    if (unique.length > 0) {
+      const stillExists = unique.some((d) => d.deviceId === selectedDevice.value);
+      if (!stillExists) selectedDevice.value = unique[0].deviceId;
+    }
+  } catch (e) {
+    micTip.value = "设备枚举失败: " + (e as Error).message;
+  } finally {
+    devicesLoading.value = false;
+  }
+}
+
+function getMicConstraints() {
+  if (selectedDevice.value) {
+    return { audio: { deviceId: { exact: selectedDevice.value } } };
+  }
+  return { audio: true };
+}
 
 let mediaRecorder: MediaRecorder | null = null;
 let audioChunks: Blob[] = [];
@@ -27,6 +82,8 @@ async function sendText() {
   scrollToBottom();
 }
 
+onMounted(refreshDevices);
+
 // ---- 录音 ----
 async function toggleRecord() {
   if (recording.value) {
@@ -38,7 +95,7 @@ async function toggleRecord() {
     return;
   }
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia(getMicConstraints());
     mediaRecorder = new MediaRecorder(stream);
     audioChunks = [];
     mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
@@ -73,9 +130,19 @@ function stopRecord() {
   micTip.value = "识别中...";
 }
 
-// ---- 播放 TTS ----
-function playTTS(url: string) {
-  new Audio(url).play().catch(() => {});
+// ---- 播放 TTS（后台异步生成，重试等待就绪）----
+async function playTTS(url: string) {
+  const tries = 6;
+  for (let i = 0; i < tries; i++) {
+    try {
+      const audio = new Audio(url);
+      await audio.play();
+      return;
+    } catch (e) {
+      // 文件未就绪（后台 TTS 还在合成）或播放被拒，等待后重试
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+  }
 }
 
 async function resetChat() {
@@ -136,6 +203,33 @@ async function resetChat() {
     <!-- 输入区 -->
     <div class="input-area">
       <div v-if="micTip" class="mic-tip">{{ micTip }}</div>
+      <!-- 麦克风设备选择 -->
+      <div class="device-bar">
+        <el-icon class="device-icon"><Microphone /></el-icon>
+        <el-select
+          v-model="selectedDevice"
+          placeholder="选择语音输入设备"
+          size="small"
+          :loading="devicesLoading"
+          class="device-select"
+          @visible-change="(v: boolean) => v && refreshDevices()"
+        >
+          <el-option
+            v-for="d in micDevices"
+            :key="d.deviceId"
+            :label="d.label"
+            :value="d.deviceId"
+          />
+        </el-select>
+        <el-button
+          text
+          size="small"
+          :loading="devicesLoading"
+          @click="refreshDevices"
+        >
+          <el-icon><Refresh /></el-icon>
+        </el-button>
+      </div>
       <div class="input-bar">
         <el-button
           :type="recording ? 'danger' : 'default'"
@@ -260,6 +354,19 @@ async function resetChat() {
   color: #6b7280;
   margin-bottom: 6px;
   min-height: 16px;
+}
+.device-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.device-icon {
+  color: #6b7280;
+}
+.device-select {
+  flex: 1;
+  max-width: 320px;
 }
 .input-bar {
   display: flex;

@@ -15,6 +15,43 @@ createApp({
     const micTip = ref("");
     const isListening = ref(false);    // 是否在监听麦克风
     const ws = ref(null);
+    // 音频输入设备
+    const micDevices = ref([]);
+    const selectedDevice = ref("");
+
+    // ---- 设备枚举 ----
+    async function refreshDevices() {
+      if (!navigator.mediaDevices?.enumerateDevices) return;
+      try {
+        // 先请求权限让 label 可见
+        try {
+          const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+          s.getTracks().forEach((t) => t.stop());
+        } catch (e) {}
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const seen = new Set();
+        const inputs = [];
+        for (const d of devices) {
+          if (d.kind === "audioinput" && !seen.has(d.deviceId)) {
+            seen.add(d.deviceId);
+            inputs.push({ deviceId: d.deviceId, label: d.label || "麦克风 " + d.deviceId.slice(0, 8) });
+          }
+        }
+        micDevices.value = inputs;
+        if (inputs.length > 0) {
+          const still = inputs.some((d) => d.deviceId === selectedDevice.value);
+          if (!still) selectedDevice.value = inputs[0].deviceId;
+        }
+      } catch (e) {
+        micTip.value = "设备枚举失败: " + e.message;
+      }
+    }
+
+    function getMicConstraints() {
+      return selectedDevice.value
+        ? { audio: { deviceId: { exact: selectedDevice.value } } }
+        : { audio: true };
+    }
 
     // ---- 工具函数 ----
     function addMsg(role, content, tools) {
@@ -86,7 +123,7 @@ createApp({
         return;
       }
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia(getMicConstraints());
         // 优先 wav，否则用默认格式（转码）
         const mime = MediaRecorder.isTypeSupported("audio/webm")
           ? "audio/webm"
@@ -203,9 +240,17 @@ createApp({
       }
     }
 
-    function playTTS(url) {
-      const audio = new Audio(url);
-      audio.play().catch(() => {});
+    async function playTTS(url) {
+      // 后台 TTS 异步生成，重试等待文件就绪
+      for (let i = 0; i < 6; i++) {
+        try {
+          const audio = new Audio(url);
+          await audio.play();
+          return;
+        } catch (e) {
+          await new Promise((r) => setTimeout(r, 1500));
+        }
+      }
     }
 
     // ---- 重置 ----
@@ -224,12 +269,14 @@ createApp({
     // ---- 初始化 ----
     healthCheck();
     setInterval(healthCheck, 15000);
+    refreshDevices();
 
     addMsg("system", "👋 你好！我是本地语音助手。\n可以直接打字，或点击麦克风说话。\n支持：天气查询 / 网络搜索 / 定时提醒");
 
     return {
       messages, input, status, statusText,
       isRecording, micTip,
+      micDevices, selectedDevice, refreshDevices,
       sendText, toggleRecord, resetChat,
     };
   },

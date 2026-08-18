@@ -117,6 +117,31 @@
       padding: 4px;
       min-height: 18px;
     }
+    .device-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px 0;
+    }
+    .device-select {
+      flex: 1;
+      max-width: 320px;
+      padding: 6px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #374151;
+      background: #fff;
+      outline: none;
+    }
+    .device-refresh {
+      border: none;
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 13px;
+    }
     .clear-btn {
       background: none; border: none;
       color: rgba(255,255,255,0.8);
@@ -151,6 +176,14 @@
       </div>
 
       <!-- 输入区 -->
+      <div class="device-bar">
+        <select v-model="selectedDevice" class="device-select" title="语音输入设备">
+          <option v-for="d in micDevices" :key="d.deviceId" :value="d.deviceId">
+            {{ d.label }}
+          </option>
+        </select>
+        <button class="device-refresh" @click="refreshDevices" title="刷新设备">🔄</button>
+      </div>
       <div class="mic-tip">{{ micTip }}</div>
       <div class="input-bar">
         <button class="btn btn-mic" :class="{ recording: isRecording }" @click="toggleRecord" :disabled="status === 'busy'">

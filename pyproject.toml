@@ -1,0 +1,12 @@
+[project]
+name = "voice-assistant"
+version = "1.0.0"
+description = "Local voice assistant: STT + LLM + TTS + tools, FastAPI backend"
+requires-python = ">=3.10"
+dependencies = []
+
+# 依赖由 .venv 管理（离线安装），此处不重复声明
+# 如需 uv 完整管理，可执行: uv pip sync requirements.txt
+
+[project.scripts]
+voice-assistant-web = "web.server:main"

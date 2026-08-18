@@ -1,0 +1,48 @@
+# ===== 模型文件（太大，不上传）=====
+models/
+*.gguf
+*.safetensors
+*.pt
+*.onnx
+*.bin
+
+# ===== Python 环境 =====
+.venv/
+.venv-cosyvoice/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# ===== 前端 =====
+node_modules/
+webapp/dist/
+webapp/node_modules/
+.npm-cache/
+
+# ===== 构建产物 / 临时 =====
+web/media/
+output/
+tmp/
+dist/
+*.log
+.DS_Store
+
+# ===== 离线依赖缓存（大，不上传）=====
+wheels/
+
+# ===== uv / 包管理 =====
+.uv-cache/
+.uv-python/
+*.lock
+
+# ===== 编辑器 =====
+.idea/
+.vscode/
+*.iml
+
+# ===== 敏感信息 =====
+.env
+*.key
+*.pem

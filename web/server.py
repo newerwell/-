@@ -395,6 +395,7 @@ async def ws_chat(websocket: WebSocket):
 # 静态资源：优先 Vite 构建产物（webapp/dist），否则旧版 web/static
 STATIC_DIR = ROOT / "web" / "static"
 VITE_DIST = ROOT / "webapp" / "dist"
+LANDING_DIR = ROOT / "web" / "landing"
 MEDIA_DIR = ROOT / "web" / "media"
 MEDIA_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/media", StaticFiles(directory=str(MEDIA_DIR)), name="media")
@@ -413,6 +414,24 @@ if VITE_DIST.exists() and (VITE_DIST / "index.html").exists():
 @app.get("/")
 def index():
     return _serve_index()
+
+
+@app.get("/welcome")
+def welcome():
+    """落地页（设计文档整合）。"""
+    f = LANDING_DIR / "index.html"
+    if f.exists():
+        return FileResponse(str(f))
+    return JSONResponse({"error": "welcome page not found"}, status_code=404)
+
+
+@app.get("/design-tokens.css")
+def landing_tokens():
+    """落地页的 token 文件。"""
+    f = LANDING_DIR / "design-tokens.css"
+    if f.exists():
+        return FileResponse(str(f), media_type="text/css")
+    return JSONResponse({"error": "not found"}, status_code=404)
 
 
 @app.get("/static/{path:path}")

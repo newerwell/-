@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>本地语音助手 — 离线 AI 对话</title><link rel="stylesheet" href="design-tokens.css" data-ipw-design-tokens><style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:
+  radial-gradient(1200px 600px at 85% -10%, var(--ipw-color-secondary) 0%, transparent 55%),
+  radial-gradient(900px 500px at -10% 110%, var(--ipw-color-bg-deep) 0%, transparent 55%),
+  var(--ipw-color-bg);
+  color:var(--ipw-color-text);font-family:var(--ipw-font-body);-webkit-font-smoothing:antialiased;
+  opacity:0;transition:opacity .45s ease}
+body.entered{opacity:1}
+body.leaving{opacity:0;transition:opacity .32s ease}
+body::before{content:"";position:fixed;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--ipw-color-primary),var(--ipw-color-accent));z-index:2}
+main{width:min(var(--ipw-content-width),calc(100% - 2 * var(--ipw-page-padding)));margin:0 auto;padding:var(--ipw-section-space) 0;
+  transform:translateY(12px);transition:transform .5s ease}
+body.entered main{transform:none}
+.eyebrow{color:var(--ipw-color-primary);font-weight:700;letter-spacing:.12em;font-size:.9rem;display:inline-flex;align-items:center;gap:8px}
+.eyebrow::before{content:"";width:28px;height:2px;background:var(--ipw-color-primary);border-radius:1px}
+h1{max-width:16ch;margin:18px 0;font-family:var(--ipw-font-display);font-size:clamp(2.4rem,7vw,5.4rem);line-height:1.08;letter-spacing:-.02em;background:linear-gradient(100deg,var(--ipw-color-text) 45%,var(--ipw-color-primary) 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
+p{max-width:56ch;color:var(--ipw-color-muted);font-size:1.12rem;line-height:1.6}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:48px}
+.feature{background:var(--ipw-card-bg);border:1px solid var(--ipw-card-border);border-radius:var(--ipw-card-radius-sm);padding:20px 22px;box-shadow:var(--ipw-card-shadow-sm);transition:transform .18s ease,box-shadow .18s ease,opacity .4s ease}
+.feature:nth-child(2){transition-delay:.06s}
+.feature:nth-child(3){transition-delay:.12s}
+.feature:hover{transform:translateY(-3px);box-shadow:var(--ipw-card-shadow)}
+body:not(.entered) .feature{opacity:0;transform:translateY(16px)}
+.feature .tag{font-family:var(--ipw-font-mono);font-size:.75rem;color:var(--ipw-color-primary);letter-spacing:.08em}
+.feature h3{margin:10px 0 6px;font-size:1.05rem;color:var(--ipw-color-text)}
+.feature p{margin:0;font-size:.95rem;line-height:1.6;color:var(--ipw-color-text-soft)}
+.card{margin-top:48px;padding:28px;border:1px solid var(--ipw-card-border);border-radius:var(--ipw-card-radius);background:var(--ipw-card-bg);box-shadow:var(--ipw-card-shadow)}
+.card .card-title{font-family:var(--ipw-font-display);font-size:1.6rem;margin:0 0 8px}
+.card p{max-width:none;margin:0 0 20px}
+.cta{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:999px;background:var(--ipw-color-primary);color:#fff;font-weight:600;font-size:.98rem;text-decoration:none;transition:filter .18s ease,transform .18s ease}
+.cta:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.cta::after{content:"→";font-size:1.1rem}
+/* 跳转过渡遮罩：主色渐变从底部滑入覆盖 */
+.transition-overlay{position:fixed;inset:0;z-index:10;pointer-events:none;
+  background:linear-gradient(135deg,var(--ipw-color-primary),var(--ipw-color-accent));
+  transform:translateY(100%);transition:transform .38s cubic-bezier(.65,0,.35,1)}
+body.leaving .transition-overlay{transform:translateY(0)}
+@media (max-width:640px){.features{grid-template-columns:1fr}.card{padding:22px}}
+</style></head><body data-ipw-theme-role="page">
+<div class="transition-overlay" aria-hidden="true"></div>
+<main>
+<div class="eyebrow">本地语音助手</div>
+<h1>和你的离线 AI 说说话。</h1>
+<p>用语音或文字提问 —— 助手用 SenseVoice 聆听、用本地 Qwen 模型思考、用语音回答。一切都在你的电脑上运行。</p>
+<section class="features" aria-label="语音助手能力">
+  <div class="feature" data-ipw-theme-role="card"><div class="tag">语音</div><h3>自然说话</h3><p>点击麦克风，说出你的需求 —— 语音识别由 SenseVoice 在本机完成。</p></div>
+  <div class="feature" data-ipw-theme-role="card"><div class="tag">智能</div><h3>本地 Qwen 大脑</h3><p>Qwen3-8B 提供回答，并支持完整工具：天气、网络搜索和定时提醒。</p></div>
+  <div class="feature" data-ipw-theme-role="card"><div class="tag">私密</div><h3>完全离线</h3><p>不依赖云端 —— 模型和代码都存放在你自己的电脑上。</p></div>
+</section>
+<section class="card" data-ipw-theme-role="card">
+  <h2 class="card-title">准备好了吗？</h2>
+  <p>打开助手开始聊天 —— 语音或文字都行。问问天气、搜索新闻、设置提醒都可以。</p>
+  <a class="cta" href="/" id="cta-open">打开助手</a>
+</section>
+</main>
+<script>
+(function () {
+  // 进入淡入
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () { document.body.classList.add("entered"); });
+  });
+  // 点击"打开助手"：遮罩滑入 → 跳转
+  var cta = document.getElementById("cta-open");
+  if (cta) {
+    cta.addEventListener("click", function (e) {
+      e.preventDefault();
+      document.body.classList.add("leaving");
+      setTimeout(function () { window.location.href = cta.getAttribute("href"); }, 420);
+    });
+  }
+})();
+</script>
+</body></html>

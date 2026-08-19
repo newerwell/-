@@ -6,6 +6,10 @@ import { useChatStore } from "@/stores/chat";
 const route = useRoute();
 const chat = useChatStore();
 
+function openWelcome() {
+  window.open("/welcome", "_blank");
+}
+
 onMounted(() => {
   chat.checkHealth();
   setInterval(() => chat.checkHealth(), 15000);
@@ -21,6 +25,10 @@ onMounted(() => {
         <span>语音助手</span>
       </div>
       <el-menu :default-active="route.path" router class="side-menu">
+        <el-menu-item @click="openWelcome">
+          <el-icon><House /></el-icon>
+          <span>欢迎页</span>
+        </el-menu-item>
         <el-menu-item index="/">
           <el-icon><ChatDotRound /></el-icon>
           <span>对话</span>

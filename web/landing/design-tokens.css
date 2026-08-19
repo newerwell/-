@@ -1,0 +1,13 @@
+/* ipw-theme:start */
+:root {
+  --ipw-color-bg: #f9fafb; --ipw-color-surface: #ffffff; --ipw-color-text: #1f2937;
+  --ipw-color-muted: #6b7280; --ipw-color-border: #e5e7eb; --ipw-color-primary: #6366f1;
+  --ipw-color-secondary: #eef2ff; --ipw-color-accent: #764ba2; --ipw-font-display: "Segoe UI", "Microsoft YaHei", sans-serif;
+  --ipw-font-body: "Segoe UI", "Microsoft YaHei", sans-serif; --ipw-content-width: 1180px; --ipw-page-padding: 32px;
+  --ipw-section-space: 96px; --ipw-card-bg: #ffffff; --ipw-card-border: #e5e7eb;
+  --ipw-card-radius: 16px; --ipw-card-shadow: 0 20px 60px rgb(0 0 0 / 12%);
+  --ipw-color-bg-deep: #f1f5f9; --ipw-color-text-soft: #9ca3af;
+  --ipw-card-radius-sm: 12px; --ipw-card-shadow-sm: 0 6px 24px rgb(0 0 0 / 7%);
+  --ipw-font-mono: "SFMono-Regular", Consolas, monospace;
+}
+/* ipw-theme:end */

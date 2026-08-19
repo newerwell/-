@@ -28,6 +28,7 @@ tmp/
 dist/
 *.log
 .DS_Store
+cosyvoice_repo/_raw/
 
 # ===== 离线依赖缓存（大，不上传）=====
 wheels/
